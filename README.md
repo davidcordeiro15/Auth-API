@@ -1123,5 +1123,3 @@ src/
 ```
 
 ---
-
-*README gerado com base na análise completa do código-fonte do projeto CarroAuth-Challenge.*
