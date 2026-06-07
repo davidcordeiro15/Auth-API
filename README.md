@@ -917,7 +917,7 @@ jwt.secret=${JWT_SECRET}
 ### Passo 1 — Clonar o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/CarroAuth-Challenge.git
+git clone [https://github.com/seu-usuario/CarroAuth-Challenge.git](https://github.com/davidcordeiro15/Auth-API.git)
 cd CarroAuth-Challenge
 ```
 
