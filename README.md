@@ -918,7 +918,7 @@ jwt.secret=${JWT_SECRET}
 
 ```bash
 git clone https://github.com/seu-usuario/CarroAuth-Challenge.git
-cd CarroAuth-Challenge
+cd Auth-API
 ```
 
 ### Passo 2 — Configurar o Banco de Dados
