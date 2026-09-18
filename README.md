@@ -305,36 +305,35 @@ java -jar target/AuthApi-0.0.1-SNAPSHOT.jar
 flowchart TD
     C([Cliente - Postman/Frontend])
 
-    subgraph AuthAPI[Auth API - 8080]
-        R[/POST /auth/register - Publico/]
-        L[/POST /auth/login - Publico/]
-        V[/POST /auth/validate - Publico/]
-        U[/GET /users - ADMIN/]
-        UP[/PUT /users/id - ADMIN/]
-        D[/DELETE /users/id - ADMIN/]
-        AUTH[AuthService + JwtService + JwtFilter]
+    subgraph AuthAPI["Auth API - 8080"]
+        R["POST /auth/register - Público"]
+        L["POST /auth/login - Público"]
+        V["POST /auth/validate - Público"]
+        U["GET /users - ADMIN"]
+        UP["PUT /users/{id} - ADMIN"]
+        D["DELETE /users/{id} - ADMIN"]
+        AUTH["JwtService + JwtFilter + RBAC"]
     end
 
-    subgraph CarroAPI[Carro API - 8081]
-        CAR[CarroController - /carros]
-        VAL[TokenValidationService - Cache 5min]
-        AC[AuthClient - POST /auth/validate]
+    subgraph CarroAPI["Carro API - 8081"]
+        CAR["CarroController - /carros"]
+        VAL["TokenValidationService - Cache 5 min"]
+        AC["AuthClient - POST /auth/validate"]
     end
 
     DB_AUTH[(Oracle - USUARIOS)]
-    DB_CARRO[(Oracle - CARROS/MODELOS/MARCAS/VERSOES/ESPECIFICACOES)]
+    DB_CARRO[(Oracle - CARROS / MODELOS / MARCAS / VERSOES / ESPECIFICACOES)]
 
-    C -->|register/login| AuthAPI
-    AuthAPI -->|JWT| VAL
+    C -->|register / login| AuthAPI
+    AuthAPI -->|JWT| C
+
     C -->|Bearer JWT| CAR
     CAR --> VAL
-    VAL -->|cache miss| AC -->|validate token| V
+    VAL -->|cache miss| AC
+    AC -->|validate token| V
+
     AUTH --> DB_AUTH
     CAR --> DB_CARRO
-
-    style C fill:#fff
-    style DB_AUTH fill:#f5f5f5
-    style DB_CARRO fill:#f5f5f5
 ```
 
 Fluxo remoto:
