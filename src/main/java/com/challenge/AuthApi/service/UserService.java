@@ -44,9 +44,7 @@ public class UserService {
         user.setSenha(encodedPassword);
 
         // define role padrão
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
-        }
+        user.setRole("USER");
 
         return userRepository.save(user);
     }

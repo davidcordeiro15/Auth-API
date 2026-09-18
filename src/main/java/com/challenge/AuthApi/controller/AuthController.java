@@ -5,6 +5,12 @@ import com.challenge.AuthApi.entity.User;
 import com.challenge.AuthApi.service.UserService;
 import com.challenge.AuthApi.security.JwtService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -14,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/auth" )
+@RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Endpoints para autenticação e validação de JWT")
 public class AuthController {
 
     private final UserService userService;
@@ -25,25 +32,37 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
+    @Operation(summary = "Registrar novo usuário", description = "Cria um novo usuário no sistema. O endpoint é público e não requer autenticação.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso",
+                content = @Content(schema = @Schema(implementation = UserResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "409", description = "E-mail já cadastrado")
+    })
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         User user = new User();
         user.setEmail(request.email());
         user.setSenha(request.senha());
         user.setNome(request.nome());
-        user.setRole(request.role());
 
         User savedUser = userService.createUser(user);
 
         UserResponse response = new UserResponse(
                 savedUser.getId(),
-                savedUser.getEmail(),
-                savedUser.getRole()
+                savedUser.getNome(),
+                savedUser.getEmail()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Autenticar usuário", description = "Autentica um usuário e retorna um JWT.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Autenticação realizada com sucesso",
+                content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
@@ -67,6 +86,14 @@ public class AuthController {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
         }
     }
+
+    @Operation(summary = "Validar token JWT", description = "Valida um token JWT e retorna os dados do usuário associado. Endpoint utilizado pelo CarroAPI para validação de tokens.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Token válido",
+                content = @Content(schema = @Schema(implementation = ValidateTokenResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Token inválido ou expirado",
+                content = @Content(schema = @Schema(implementation = ValidateTokenResponse.class)))
+    })
     @PostMapping("/validate")
     public ResponseEntity<ValidateTokenResponse> validateToken(
             @Valid @RequestBody ValidateTokenRequest request) {
